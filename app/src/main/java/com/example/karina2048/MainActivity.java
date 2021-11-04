@@ -1,0 +1,391 @@
+package com.example.karina2048;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.core.widget.TextViewCompat;
+
+import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+
+    TextView[][] tablero;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        tablero = generarTablero();
+        generarRandomInicial();
+
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+    }
+
+    public TextView[][] generarTablero() {
+        TextView[][] matriz = new TextView[4][4];
+
+        final int N = 4;
+
+        LinearLayout rLayout = (LinearLayout) findViewById(R.id.tabla);
+
+        LinearLayout.LayoutParams style = new LinearLayout.LayoutParams(ViewGroup.MarginLayoutParams.WRAP_CONTENT, ViewGroup.MarginLayoutParams.WRAP_CONTENT);
+        style.setMargins(17, 17, 17, 17);
+        style.height = 200;
+        style.width = 200;
+
+        for (int i = 0; i < N; i++) {
+            LinearLayout lLayout = new LinearLayout(this);
+            lLayout.setHorizontalGravity(1);
+
+            for (int j = 0; j < N; j++) {
+                TextView txtView = new TextView(this);
+                txtView.setLayoutParams(style);
+                TextViewCompat.setAutoSizeTextTypeWithDefaults(txtView, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+                txtView.setGravity(Gravity.CENTER);
+                txtView.setPadding(15,15,15,15);
+                txtView.setTextColor(Color.parseColor("#ffffff"));
+                txtView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                txtView.setTypeface(null, Typeface.BOLD_ITALIC);
+                txtView.setId(Integer.parseInt("" + i + j));
+
+                lLayout.addView(txtView);
+                matriz[i][j] = txtView;
+            }
+            rLayout.addView(lLayout);
+        }
+
+        return matriz;
+    }
+
+    private void generarRandomInicial() {
+
+        int min = 0;
+        int max = 3;
+
+        int x = (int) Math.floor(Math.random() * (max - min + 1) + min);
+        int y = (int) Math.floor(Math.random() * (max - min + 1) + min);
+        int x2 = (int) Math.floor(Math.random() * (max - min + 1) + min);
+        int y2 = (int) Math.floor(Math.random() * (max - min + 1) + min);
+        while (x == x2 && y == y2) {
+            x2 = (int) Math.floor(Math.random() * (max - min + 1) + min);
+            y2 = (int) Math.floor(Math.random() * (max - min + 1) + min);
+        }
+        tablero[x][y].setText("2");
+        tablero[x2][y2].setText("2");
+        actualizarFichas();
+    }
+
+    private void crearFicha() {
+
+        boolean[][] libre = new boolean[4][4];
+        boolean completa = true;
+
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 0; j < tablero[i].length; j++) {
+                if (tablero[i][j].getText() == "") {
+                    libre[i][j] = true;
+                    completa = false;
+                } else {
+                    libre[i][j] = false;
+                }
+            }
+        }
+
+        if (!completa) {
+            int min = 0;
+            int max = 3;
+            int x = (int) Math.floor(Math.random() * (max - min + 1) + min);
+            int y = (int) Math.floor(Math.random() * (max - min + 1) + min);
+
+            while (!libre[x][y]) {
+                x = (int) Math.floor(Math.random() * (max - min + 1) + min);
+                y = (int) Math.floor(Math.random() * (max - min + 1) + min);
+            }
+
+            tablero[x][y].setText("2");
+        }
+        actualizarFichas();
+    }
+
+    /**
+     * Actualiza la forma en la que se ve la tabla
+     */
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void actualizarFichas() {
+        for (TextView[] textViews : tablero) {
+            for (int j = 0; j < tablero.length; j++) {
+                TextView tile = textViews[j];
+                switch (tile.getText().toString()) {
+                    case "2":
+                        tile.setBackground(getDrawable(R.drawable.tile_0002));
+                        break;
+                    case "4":
+                        tile.setBackground(getDrawable(R.drawable.tile_0004));
+                        break;
+                    case "8":
+                        tile.setBackground(getDrawable(R.drawable.tile_0008));
+                        break;
+                    case "16":
+                        tile.setBackground(getDrawable(R.drawable.tile_0016));
+                        break;
+                    case "32":
+                        tile.setBackground(getDrawable(R.drawable.tile_0032));
+                        break;
+                    case "64":
+                        tile.setBackground(getDrawable(R.drawable.tile_0064));
+                        break;
+                    case "128":
+                        tile.setBackground(getDrawable(R.drawable.tile_0128));
+                        break;
+                    case "256":
+                        tile.setBackground(getDrawable(R.drawable.tile_0256));
+                        break;
+                    case "512":
+                        tile.setBackground(getDrawable(R.drawable.tile_0512));
+                        break;
+                    case "1024":
+                        tile.setBackground(getDrawable(R.drawable.tile_1024));
+                        break;
+                    case "2048":
+                        tile.setBackground(getDrawable(R.drawable.tile_2048));
+                        break;
+                    default:
+                        tile.setBackground(getDrawable(R.drawable.tile_0000));
+                }
+            }
+        }
+    }
+
+    private GestureDetectorCompat mDetector;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final String DEBUG_TAG = "Gestos";
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d(DEBUG_TAG, "onDown: " + event.toString());
+            Log.d(DEBUG_TAG, "x: " + event.getX() + " y: " + event.getY());
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+            //Log.d(DEBUG_TAG, "onFling: " + event1.toString() + event2.toString());
+            Log.d(DEBUG_TAG, "x: " + event1.getX() + " y: " + event1.getY());
+            Log.d(DEBUG_TAG, "x: " + event2.getX() + " y: " + event2.getY());
+
+
+            float DifX = Math.abs(event1.getX() - event2.getX());
+            float DifY = Math.abs(event1.getY() - event2.getY());
+            Log.d(DEBUG_TAG, DifX + " " + DifY);
+            final int MIN_DIST = 250;
+
+            if (DifX < MIN_DIST || DifY < MIN_DIST) {
+                if (DifX > MIN_DIST) {
+                    if (event1.getX() < event2.getX()) {
+                        Log.i(DEBUG_TAG, "DERECHA");
+                        moverDerecha();
+                    } else {
+                        Log.i(DEBUG_TAG, "IZQUIERDA");
+                        moverIzquierda();
+                    }
+                } else {
+                    if (event1.getY() < event2.getY()) {
+                        Log.i(DEBUG_TAG, "ABAJO");
+                        moverArriba();
+                    } else {
+                        Log.i(DEBUG_TAG, "ARRIBA");
+                        moverAbajo();
+                    }
+                }
+            } else {
+                Log.i(DEBUG_TAG, "Movimiento diagonal omitido");
+                Toast.makeText(getApplicationContext(), "Movimiento diagonal omitido", Toast.LENGTH_SHORT).show();
+            }
+
+
+            return true;
+        }
+    }
+
+    private void moverDerecha() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 3; j >= 0; j--) {
+                int ficha = tablero[i][j].getId();
+                int fichaValor;
+
+                try {
+                    fichaValor = Integer.parseInt((String) tablero[i][j].getText());
+                } catch (Exception e) {
+                    fichaValor = 0;
+                }
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 3; k >= 0; k--) {
+                        int fichaObjetivo = tablero[i][k].getId();
+                        if (ficha != fichaObjetivo) {
+                            int fichaObjetivoValor;
+                            try {
+                                fichaObjetivoValor = Integer.parseInt((String) tablero[i][k].getText());
+                            } catch (Exception e) {
+                                fichaObjetivoValor = 0;
+                            }
+                            if (fichaObjetivoValor == 0) {
+                                tablero[i][k].setText(tablero[i][j].getText());
+                                tablero[i][j].setText("");
+                                break;
+                            } else if (fichaValor == fichaObjetivoValor) {
+                                tablero[i][k].setText(Integer.toString(fichaValor * 2));
+                                tablero[i][j].setText("");
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+
+    private void moverIzquierda() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 0; j < tablero[i].length; j++) {
+                int ficha = tablero[i][j].getId();
+                int fichaValor;
+
+                try {
+                    fichaValor = Integer.parseInt((String) tablero[i][j].getText());
+                } catch (Exception e) {
+                    fichaValor = 0;
+                }
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 0; k < tablero[i].length; k++) {
+                        int fichaObjetivo = tablero[i][k].getId();
+                        if (ficha != fichaObjetivo) {
+                            int fichaObjetivoValor;
+                            try {
+                                fichaObjetivoValor = Integer.parseInt((String) tablero[i][k].getText());
+                            } catch (Exception e) {
+                                fichaObjetivoValor = 0;
+                            }
+                            if (fichaObjetivoValor == 0) {
+                                tablero[i][k].setText(tablero[i][j].getText());
+                                tablero[i][j].setText("");
+                                break;
+                            } else if (fichaValor == fichaObjetivoValor) {
+                                tablero[i][k].setText(Integer.toString(fichaValor * 2));
+                                tablero[i][j].setText("");
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+
+    private void moverAbajo() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 0; j < tablero[i].length; j++) {
+                int ficha = tablero[j][i].getId();
+                int fichaValor;
+
+                try {
+                    fichaValor = Integer.parseInt((String) tablero[j][i].getText());
+                } catch (Exception e) {
+                    fichaValor = 0;
+                }
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 0; k < tablero[i].length; k++) {
+                        int fichaObjetivo = tablero[k][i].getId();
+                        if (ficha != fichaObjetivo) {
+                            int fichaObjetivoValor;
+                            try {
+                                fichaObjetivoValor = Integer.parseInt((String) tablero[k][i].getText());
+                            } catch (Exception e) {
+                                fichaObjetivoValor = 0;
+                            }
+                            if (fichaObjetivoValor == 0) {
+                                tablero[k][i].setText(tablero[j][i].getText());
+                                tablero[j][i].setText("");
+                                break;
+                            } else if (fichaValor == fichaObjetivoValor) {
+                                tablero[k][i].setText(Integer.toString(fichaValor * 2));
+                                tablero[j][i].setText("");
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+
+    private void moverArriba() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 3; j >= 0; j--) {
+                int ficha = tablero[j][i].getId();
+                int fichaValor;
+
+                try {
+                    fichaValor = Integer.parseInt((String) tablero[j][i].getText());
+                } catch (Exception e) {
+                    fichaValor = 0;
+                }
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 3; k >= 0; k--) {
+                        int fichaObjetivo = tablero[k][i].getId();
+                        if (ficha != fichaObjetivo) {
+                            int fichaObjetivoValor;
+                            try {
+                                fichaObjetivoValor = Integer.parseInt((String) tablero[k][i].getText());
+                            } catch (Exception e) {
+                                fichaObjetivoValor = 0;
+                            }
+                            if (fichaObjetivoValor == 0) {
+                                tablero[k][i].setText(tablero[j][i].getText());
+                                tablero[j][i].setText("");
+                                break;
+                            } else if (fichaValor == fichaObjetivoValor) {
+                                tablero[k][i].setText(Integer.toString(fichaValor * 2));
+                                tablero[j][i].setText("");
+                                break;
+                            } else {
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+}
