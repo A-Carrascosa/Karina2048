@@ -88,16 +88,20 @@ public class MainActivity extends AppCompatActivity {
         actualizarFichas();
     }
 
-    private void crearFicha() {
+    private void nuevaRonda() {
 
         boolean[][] libre = new boolean[4][4];
         boolean completa = true;
+        boolean win = false;
 
-        for (int i = 0; i < tablero.length; i++) {
-            for (int j = 0; j < tablero[i].length; j++) {
-                if (tablero[i][j].getText() == "") {
+        for (int i = 0; i < tablero.length && !win; i++) {
+            for (int j = 0; j < tablero[i].length && !win; j++) {
+                if (tablero[i][j].getText().toString().equals("")) {
                     libre[i][j] = true;
                     completa = false;
+                } else if (tablero[i][j].getText().toString().equals("2048")) {
+                    win = true;
+                    Toast.makeText(this, "Has ganado!", Toast.LENGTH_LONG).show();
                 } else {
                     libre[i][j] = false;
                 }
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 y = (int) Math.floor(Math.random() * (max - min + 1) + min);
             }
 
-            tablero[x][y].setText("2");
+            tablero[x][y].setText("512");
         }
         actualizarFichas();
     }
@@ -190,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        crearFicha();
+        nuevaRonda();
     }
 
     private void moverIzquierda() {
@@ -208,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        crearFicha();
+        nuevaRonda();
     }
 
     private void moverAbajo() {
@@ -226,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        crearFicha();
+        nuevaRonda();
     }
 
     private void moverArriba() {
@@ -244,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        crearFicha();
+        nuevaRonda();
     }
 
     @SuppressLint("SetTextI18n")
