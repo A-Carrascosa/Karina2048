@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         final int N = 4;
 
-        LinearLayout rLayout = (LinearLayout) findViewById(R.id.tabla);
+        LinearLayout rLayout = findViewById(R.id.tabla);
 
         LinearLayout.LayoutParams style = new LinearLayout.LayoutParams(ViewGroup.MarginLayoutParams.WRAP_CONTENT, ViewGroup.MarginLayoutParams.WRAP_CONTENT);
         style.setMargins(17, 17, 17, 17);
@@ -102,13 +102,14 @@ public class MainActivity extends AppCompatActivity {
                 } else if (tablero[i][j].getText().toString().equals("2048")) {
                     win = true;
                     Toast.makeText(this, "Has ganado!", Toast.LENGTH_LONG).show();
+                    reiniciarTablero();
                 } else {
                     libre[i][j] = false;
                 }
             }
         }
 
-        if (!completa) {
+        if (!completa && !win) {
             int min = 0;
             int max = 3;
             int x = (int) Math.floor(Math.random() * (max - min + 1) + min);
@@ -119,9 +120,24 @@ public class MainActivity extends AppCompatActivity {
                 y = (int) Math.floor(Math.random() * (max - min + 1) + min);
             }
 
-            tablero[x][y].setText("512");
+            String valor = "2";
+            int rand = (int) Math.floor(Math.random() * (100 + 1) + 0);
+            if (rand > 75) {
+                valor = "4";
+            }
+
+            tablero[x][y].setText(valor);
         }
         actualizarFichas();
+    }
+
+    private void reiniciarTablero() {
+        for (TextView[] textViews : tablero) {
+            for (int j = 0; j < tablero.length; j++) {
+                textViews[j].setText("");
+            }
+        }
+        generarRandomInicial();
     }
 
     /**
@@ -185,14 +201,15 @@ public class MainActivity extends AppCompatActivity {
 
                 int ficha = tablero[i][j].getId();
                 int fichaValor = getFichaValor(tablero[i][j]);
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
-
+                //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+                System.out.print(fichaValor + ", ");
                 if (fichaValor != 0) {
                     for (int k = 3; k >= j; k--) {
-                        if (comprobarMovimiento(k, ficha, fichaValor, i, tablero[i][j])) break;
+                        if (comprobarMovimiento(i, k, ficha, fichaValor, tablero[i][j])) break;
                     }
                 }
             }
+            System.out.println();
         }
         nuevaRonda();
     }
@@ -203,14 +220,16 @@ public class MainActivity extends AppCompatActivity {
 
                 int ficha = tablero[i][j].getId();
                 int fichaValor = getFichaValor(tablero[i][j]);
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+                //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+                System.out.print(fichaValor + ", ");
 
                 if (fichaValor != 0) {
                     for (int k = 0; k <= j; k++) {
-                        if (comprobarMovimiento(k, ficha, fichaValor, i, tablero[i][j])) break;
+                        if (comprobarMovimiento(i, k, ficha, fichaValor, tablero[i][j])) break;
                     }
                 }
             }
+            System.out.println();
         }
         nuevaRonda();
     }
@@ -221,14 +240,16 @@ public class MainActivity extends AppCompatActivity {
 
                 int ficha = tablero[j][i].getId();
                 int fichaValor = getFichaValor(tablero[j][i]);
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+                //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+                System.out.print(fichaValor + ", ");
 
                 if (fichaValor != 0) {
                     for (int k = 0; k <= j; k++) {
-                        if (comprobarMovimiento(i, ficha, fichaValor, k, tablero[j][i])) break;
+                        if (comprobarMovimiento(k, i, ficha, fichaValor, tablero[j][i])) break;
                     }
                 }
             }
+            System.out.println();
         }
         nuevaRonda();
     }
@@ -239,20 +260,22 @@ public class MainActivity extends AppCompatActivity {
 
                 int ficha = tablero[j][i].getId();
                 int fichaValor = getFichaValor(tablero[j][i]);
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+                //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+                System.out.print(fichaValor + ", ");
 
                 if (fichaValor != 0) {
                     for (int k = 3; k >= j; k--) {
-                        if (comprobarMovimiento(i, ficha, fichaValor, k, tablero[j][i])) break;
+                        if (comprobarMovimiento(k, i, ficha, fichaValor, tablero[j][i])) break;
                     }
                 }
             }
+            System.out.println();
         }
         nuevaRonda();
     }
 
     @SuppressLint("SetTextI18n")
-    private boolean comprobarMovimiento(int y, int fichaId, int fichaValor, int x, TextView ficha) {
+    private boolean comprobarMovimiento(int x, int y, int fichaId, int fichaValor, TextView ficha) {
         int fichaObjetivo = tablero[x][y].getId();
         if (fichaId != fichaObjetivo) {
 
@@ -286,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onDown(MotionEvent event) {
-            Log.d(DEBUG_TAG, "onDown: " + event.toString());
+            //Log.d(DEBUG_TAG, "onDown: " + event.toString());
             Log.d(DEBUG_TAG, "x: " + event.getX() + " y: " + event.getY());
             return true;
         }
@@ -304,7 +327,15 @@ public class MainActivity extends AppCompatActivity {
             Log.d(DEBUG_TAG, DifX + " " + DifY);
             final int MIN_DIST = 250;
 
-            if (DifX < MIN_DIST || DifY < MIN_DIST) {
+            if (DifX > MIN_DIST && DifY > MIN_DIST || DifX < MIN_DIST && DifY < MIN_DIST) {
+                if (DifX < MIN_DIST && DifY < MIN_DIST) {
+                    Log.i(DEBUG_TAG, String.valueOf(R.string.too_short));
+                    Toast.makeText(getApplicationContext(), R.string.too_short, Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.i(DEBUG_TAG, getString(R.string.skipped_diagonal));
+                    Toast.makeText(getApplicationContext(), R.string.skipped_diagonal, Toast.LENGTH_SHORT).show();
+                }
+            } else {
                 if (DifX > MIN_DIST) {
                     if (event1.getX() < event2.getX()) {
                         Log.i(DEBUG_TAG, "DERECHA");
@@ -322,9 +353,6 @@ public class MainActivity extends AppCompatActivity {
                         moverAbajo();
                     }
                 }
-            } else {
-                Log.i(DEBUG_TAG, "Movimiento diagonal omitido");
-                Toast.makeText(getApplicationContext(), "Movimiento diagonal omitido", Toast.LENGTH_SHORT).show();
             }
 
 
