@@ -1,9 +1,5 @@
 package com.example.karina2048;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GestureDetectorCompat;
-import androidx.core.widget.TextViewCompat;
-
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -18,9 +14,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.core.widget.TextViewCompat;
+
 public class MainActivity extends AppCompatActivity {
 
     TextView[][] tablero;
+    private GestureDetectorCompat mDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 txtView.setLayoutParams(style);
                 TextViewCompat.setAutoSizeTextTypeWithDefaults(txtView, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
                 txtView.setGravity(Gravity.CENTER);
-                txtView.setPadding(15,15,15,15);
+                txtView.setPadding(15, 15, 15, 15);
                 txtView.setTextColor(Color.parseColor("#ffffff"));
                 txtView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 txtView.setTypeface(null, Typeface.BOLD_ITALIC);
@@ -168,12 +169,112 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private GestureDetectorCompat mDetector;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         this.mDetector.onTouchEvent(event);
         return super.onTouchEvent(event);
+    }
+
+    private void moverDerecha() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 3; j >= 0; j--) {
+
+                int ficha = tablero[i][j].getId();
+                int fichaValor = getFichaValor(tablero[i][j]);
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 3; k >= j; k--) {
+                        if (comprobarMovimiento(k, ficha, fichaValor, i, tablero[i][j])) break;
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+
+    private void moverIzquierda() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 0; j < tablero[i].length; j++) {
+
+                int ficha = tablero[i][j].getId();
+                int fichaValor = getFichaValor(tablero[i][j]);
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 0; k <= j; k++) {
+                        if (comprobarMovimiento(k, ficha, fichaValor, i, tablero[i][j])) break;
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+
+    private void moverAbajo() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 0; j < tablero[i].length; j++) {
+
+                int ficha = tablero[j][i].getId();
+                int fichaValor = getFichaValor(tablero[j][i]);
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 0; k <= j; k++) {
+                        if (comprobarMovimiento(i, ficha, fichaValor, k, tablero[j][i])) break;
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+
+    private void moverArriba() {
+        for (int i = 0; i < tablero.length; i++) {
+            for (int j = 3; j >= 0; j--) {
+
+                int ficha = tablero[j][i].getId();
+                int fichaValor = getFichaValor(tablero[j][i]);
+                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
+
+                if (fichaValor != 0) {
+                    for (int k = 3; k >= j; k--) {
+                        if (comprobarMovimiento(i, ficha, fichaValor, k, tablero[j][i])) break;
+                    }
+                }
+            }
+        }
+        crearFicha();
+    }
+
+    @SuppressLint("SetTextI18n")
+    private boolean comprobarMovimiento(int y, int fichaId, int fichaValor, int x, TextView ficha) {
+        int fichaObjetivo = tablero[x][y].getId();
+        if (fichaId != fichaObjetivo) {
+
+            int fichaObjetivoValor = getFichaValor(tablero[x][y]);
+
+            if (fichaObjetivoValor == 0) {
+                tablero[x][y].setText(ficha.getText());
+                ficha.setText("");
+                return true;
+            } else if (fichaValor == fichaObjetivoValor) {
+                tablero[x][y].setText(Integer.toString(fichaValor * 2));
+                ficha.setText("");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int getFichaValor(TextView textView) {
+        int fichaValor;
+        try {
+            fichaValor = Integer.parseInt((String) textView.getText());
+        } catch (Exception e) {
+            fichaValor = 0;
+        }
+        return fichaValor;
     }
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -225,167 +326,5 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         }
-    }
-
-    private void moverDerecha() {
-        for (int i = 0; i < tablero.length; i++) {
-            for (int j = 3; j >= 0; j--) {
-                int ficha = tablero[i][j].getId();
-                int fichaValor;
-
-                try {
-                    fichaValor = Integer.parseInt((String) tablero[i][j].getText());
-                } catch (Exception e) {
-                    fichaValor = 0;
-                }
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
-
-                if (fichaValor != 0) {
-                    for (int k = 3; k >= 0; k--) {
-                        int fichaObjetivo = tablero[i][k].getId();
-                        if (ficha != fichaObjetivo) {
-                            int fichaObjetivoValor;
-                            try {
-                                fichaObjetivoValor = Integer.parseInt((String) tablero[i][k].getText());
-                            } catch (Exception e) {
-                                fichaObjetivoValor = 0;
-                            }
-                            if (fichaObjetivoValor == 0) {
-                                tablero[i][k].setText(tablero[i][j].getText());
-                                tablero[i][j].setText("");
-                                break;
-                            } else if (fichaValor == fichaObjetivoValor) {
-                                tablero[i][k].setText(Integer.toString(fichaValor * 2));
-                                tablero[i][j].setText("");
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        crearFicha();
-    }
-
-    private void moverIzquierda() {
-        for (int i = 0; i < tablero.length; i++) {
-            for (int j = 0; j < tablero[i].length; j++) {
-                int ficha = tablero[i][j].getId();
-                int fichaValor;
-
-                try {
-                    fichaValor = Integer.parseInt((String) tablero[i][j].getText());
-                } catch (Exception e) {
-                    fichaValor = 0;
-                }
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
-
-                if (fichaValor != 0) {
-                    for (int k = 0; k < tablero[i].length; k++) {
-                        int fichaObjetivo = tablero[i][k].getId();
-                        if (ficha != fichaObjetivo) {
-                            int fichaObjetivoValor;
-                            try {
-                                fichaObjetivoValor = Integer.parseInt((String) tablero[i][k].getText());
-                            } catch (Exception e) {
-                                fichaObjetivoValor = 0;
-                            }
-                            if (fichaObjetivoValor == 0) {
-                                tablero[i][k].setText(tablero[i][j].getText());
-                                tablero[i][j].setText("");
-                                break;
-                            } else if (fichaValor == fichaObjetivoValor) {
-                                tablero[i][k].setText(Integer.toString(fichaValor * 2));
-                                tablero[i][j].setText("");
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        crearFicha();
-    }
-
-    private void moverAbajo() {
-        for (int i = 0; i < tablero.length; i++) {
-            for (int j = 0; j < tablero[i].length; j++) {
-                int ficha = tablero[j][i].getId();
-                int fichaValor;
-
-                try {
-                    fichaValor = Integer.parseInt((String) tablero[j][i].getText());
-                } catch (Exception e) {
-                    fichaValor = 0;
-                }
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
-
-                if (fichaValor != 0) {
-                    for (int k = 0; k < tablero[i].length; k++) {
-                        int fichaObjetivo = tablero[k][i].getId();
-                        if (ficha != fichaObjetivo) {
-                            int fichaObjetivoValor;
-                            try {
-                                fichaObjetivoValor = Integer.parseInt((String) tablero[k][i].getText());
-                            } catch (Exception e) {
-                                fichaObjetivoValor = 0;
-                            }
-                            if (fichaObjetivoValor == 0) {
-                                tablero[k][i].setText(tablero[j][i].getText());
-                                tablero[j][i].setText("");
-                                break;
-                            } else if (fichaValor == fichaObjetivoValor) {
-                                tablero[k][i].setText(Integer.toString(fichaValor * 2));
-                                tablero[j][i].setText("");
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        crearFicha();
-    }
-
-    private void moverArriba() {
-        for (int i = 0; i < tablero.length; i++) {
-            for (int j = 3; j >= 0; j--) {
-                int ficha = tablero[j][i].getId();
-                int fichaValor;
-
-                try {
-                    fichaValor = Integer.parseInt((String) tablero[j][i].getText());
-                } catch (Exception e) {
-                    fichaValor = 0;
-                }
-                Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
-
-                if (fichaValor != 0) {
-                    for (int k = 3; k >= 0; k--) {
-                        int fichaObjetivo = tablero[k][i].getId();
-                        if (ficha != fichaObjetivo) {
-                            int fichaObjetivoValor;
-                            try {
-                                fichaObjetivoValor = Integer.parseInt((String) tablero[k][i].getText());
-                            } catch (Exception e) {
-                                fichaObjetivoValor = 0;
-                            }
-                            if (fichaObjetivoValor == 0) {
-                                tablero[k][i].setText(tablero[j][i].getText());
-                                tablero[j][i].setText("");
-                                break;
-                            } else if (fichaValor == fichaObjetivoValor) {
-                                tablero[k][i].setText(Integer.toString(fichaValor * 2));
-                                tablero[j][i].setText("");
-                                break;
-                            } else {
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        crearFicha();
     }
 }
