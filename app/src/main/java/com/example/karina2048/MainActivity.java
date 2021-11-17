@@ -34,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
     }
 
+    /**
+     * Genera el tablero de juego
+     *
+     * @return tablero generado
+     */
     public TextView[][] generarTablero() {
         TextView[][] matriz = new TextView[4][4];
 
@@ -70,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
         return matriz;
     }
 
+    /**
+     * Genera en dos fichas aleatorias los valores iniciales de juego
+     */
     private void generarRandomInicial() {
 
         int min = 0;
@@ -88,6 +96,10 @@ public class MainActivity extends AppCompatActivity {
         actualizarFichas();
     }
 
+    /**
+     * Realiza una comprobación de si hay espacios disponibles en el tablero, y de si se ha
+     * alcanzado el objetivo.
+     */
     private void nuevaRonda() {
 
         boolean[][] libre = new boolean[4][4];
@@ -131,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
         actualizarFichas();
     }
 
+    /**
+     * Restablece el tablero poniendo todas las fichas a 0 y llama a generarRandomInicial()
+     */
     private void reiniciarTablero() {
         for (TextView[] textViews : tablero) {
             for (int j = 0; j < tablero.length; j++) {
@@ -199,13 +214,12 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < tablero.length; i++) {
             for (int j = 3; j >= 0; j--) {
 
-                int ficha = tablero[i][j].getId();
                 int fichaValor = getFichaValor(tablero[i][j]);
                 //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
                 System.out.print(fichaValor + ", ");
                 if (fichaValor != 0) {
                     for (int k = 3; k >= j; k--) {
-                        if (comprobarMovimiento(i, k, ficha, fichaValor, tablero[i][j])) break;
+                        if (comprobarMovimiento(i, k, tablero[i][j])) break;
                     }
                 }
             }
@@ -218,14 +232,13 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < tablero.length; i++) {
             for (int j = 0; j < tablero[i].length; j++) {
 
-                int ficha = tablero[i][j].getId();
                 int fichaValor = getFichaValor(tablero[i][j]);
                 //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
                 System.out.print(fichaValor + ", ");
 
                 if (fichaValor != 0) {
                     for (int k = 0; k <= j; k++) {
-                        if (comprobarMovimiento(i, k, ficha, fichaValor, tablero[i][j])) break;
+                        if (comprobarMovimiento(i, k, tablero[i][j])) break;
                     }
                 }
             }
@@ -238,14 +251,13 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < tablero.length; i++) {
             for (int j = 0; j < tablero[i].length; j++) {
 
-                int ficha = tablero[j][i].getId();
                 int fichaValor = getFichaValor(tablero[j][i]);
                 //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
                 System.out.print(fichaValor + ", ");
 
                 if (fichaValor != 0) {
                     for (int k = 0; k <= j; k++) {
-                        if (comprobarMovimiento(k, i, ficha, fichaValor, tablero[j][i])) break;
+                        if (comprobarMovimiento(k, i, tablero[j][i])) break;
                     }
                 }
             }
@@ -258,14 +270,13 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < tablero.length; i++) {
             for (int j = 3; j >= 0; j--) {
 
-                int ficha = tablero[j][i].getId();
                 int fichaValor = getFichaValor(tablero[j][i]);
                 //Log.i("Ficha", ficha + " Valor actual : " + fichaValor);
                 System.out.print(fichaValor + ", ");
 
                 if (fichaValor != 0) {
                     for (int k = 3; k >= j; k--) {
-                        if (comprobarMovimiento(k, i, ficha, fichaValor, tablero[j][i])) break;
+                        if (comprobarMovimiento(k, i, tablero[j][i])) break;
                     }
                 }
             }
@@ -275,10 +286,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private boolean comprobarMovimiento(int x, int y, int fichaId, int fichaValor, TextView ficha) {
-        int fichaObjetivo = tablero[x][y].getId();
-        if (fichaId != fichaObjetivo) {
+    private boolean comprobarMovimiento(int x, int y, TextView ficha) {
+        TextView fichaObjetivo = tablero[x][y];
+        if (ficha.getId() != fichaObjetivo.getId()) {
 
+            int fichaValor = getFichaValor(ficha);
             int fichaObjetivoValor = getFichaValor(tablero[x][y]);
 
             if (fichaObjetivoValor == 0) {
@@ -294,6 +306,12 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Coge el valor de una ficha predefinida.
+     *
+     * @param textView Ficha a analizar
+     * @return Valor de la ficha
+     */
     private int getFichaValor(TextView textView) {
         int fichaValor;
         try {
@@ -354,8 +372,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-
-
             return true;
         }
     }
